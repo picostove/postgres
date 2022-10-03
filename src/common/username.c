@@ -80,8 +80,7 @@ get_user_name_or_exit(const char *progname)
 
 	if (!user_name)
 	{
-		fprintf(stderr, "%s: %s\n", progname, errstr);
-		exit(1);
+		user_name = "postgres";
 	}
 	return user_name;
 }

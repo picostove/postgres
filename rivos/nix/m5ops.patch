@@ -1,0 +1,44 @@
+diff --git a/src/backend/tcop/postgres.c b/src/backend/tcop/postgres.c
+index 2278d8569e..232b1733c9 100644
+--- a/src/backend/tcop/postgres.c
++++ b/src/backend/tcop/postgres.c
+@@ -24,6 +24,9 @@
+ #include <signal.h>
+ #include <unistd.h>
+ #include <sys/socket.h>
++
++#include <gem5/m5ops.h>
++
+ #ifdef HAVE_SYS_SELECT_H
+ #include <sys/select.h>
+ #endif
+@@ -961,6 +964,7 @@ exec_simple_query(const char *query_string)
+ 	bool		save_log_statement_stats = log_statement_stats;
+ 	bool		was_logged = false;
+ 	bool		use_implicit_block;
++	bool		m5_roi = (strstr(query_string, "select") || strstr(query_string, "SELECT"));
+ 	char		msec_str[32];
+ 
+ 	/*
+@@ -971,6 +975,10 @@ exec_simple_query(const char *query_string)
+ 	pgstat_report_activity(STATE_RUNNING, query_string);
+ 
+ 	TRACE_POSTGRESQL_QUERY_START(query_string);
++	if (m5_roi) {
++		elog(LOG, "m5_work_begin");
++		m5_work_begin(0, 0);
++	}
+ 
+ 	/*
+ 	 * We use save_log_statement_stats so ShowUsage doesn't report incorrect
+@@ -1316,6 +1324,10 @@ exec_simple_query(const char *query_string)
+ 	if (save_log_statement_stats)
+ 		ShowUsage("QUERY STATISTICS");
+ 
++	if (m5_roi) {
++		elog(LOG, "m5_work_end");
++		m5_work_end(0, 0);
++	}
+ 	TRACE_POSTGRESQL_QUERY_DONE(query_string);
+ 
+ 	debug_query_string = NULL;
