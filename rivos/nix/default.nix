@@ -4,7 +4,7 @@ let
       # dependencies
       { stdenv, lib, fetchurl, makeWrapper, flex, perl, bison, libxslt
       , glibc, zlib, readline, openssl, icu, lz4, systemd, libossp_uuid
-      , pkg-config, libxml2, tzdata, libkrb5, glibcLocales
+      , pkg-config, libxml2, tzdata, libkrb5, glibcLocales, papi
 
       # This is important to obtain a version of `libpq` that does not depend on systemd.
       , enableSystemd ? (lib.versionAtLeast version "9.6" && !stdenv.isDarwin && !stdenv.hostPlatform.isStatic)
@@ -21,12 +21,17 @@ let
       nixosTests, thisAttr,
       m5ops ? null,
       enableM5ops ? false,
+      enablePapi ? true,
     }:
   assert enableM5ops -> m5ops != null;
   let
     atLeast = lib.versionAtLeast version;
     icuEnabled = atLeast "10";
     lz4Enabled = atLeast "14";
+    instrumentationLinkFlags = []
+      ++ lib.optional enableM5ops "-lm5"
+      ++ lib.optional enablePapi "-lpapi";
+ 
   in
   stdenv.mkDerivation rec {
     pname = "postgresql";
@@ -39,8 +44,8 @@ let
     outputs = [ "out" "lib" ];
     setOutputFlags = false; # $out retains configureFlags :-/
 
-    # HACK!
-    ${if enableM5ops then "NIX_CFLAGS_LINK" else null} = "-lm5";
+    # HACK! We use this to sneak in the linker flags without postgres knowing.
+    ${if (instrumentationLinkFlags != []) then "NIX_CFLAGS_LINK" else null} = "${lib.concatStringsSep " " instrumentationLinkFlags}";
 
     buildInputs =
       [ zlib readline openssl libxml2 glibcLocales ]
@@ -49,7 +54,8 @@ let
       ++ lib.optionals enableSystemd [ systemd ]
       ++ lib.optionals gssSupport [ libkrb5 ]
       ++ lib.optionals (!stdenv.isDarwin) [ libossp_uuid ]
-      ++ lib.optionals (enableM5ops) [ m5ops ];
+      ++ lib.optionals (enableM5ops) [ m5ops ]
+      ++ lib.optionals (enablePapi) [ papi ];
 
     nativeBuildInputs = [ bison flex libxslt makeWrapper perl ] ++ lib.optionals icuEnabled [ pkg-config ];
 
