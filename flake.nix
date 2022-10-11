@@ -8,6 +8,7 @@
   inputs.nixpkgs.url = "nixpkgs/nixos-unstable";
 
   inputs.gem5.url = "github:picostove/gem5";
+  inputs.gem5.inputs.nixpkgs.follows = "nixpkgs";
 
   outputs = {
     self,
