@@ -37,6 +37,7 @@
         overlays = [
           self.overlays.default
           self.overlays.rivosAdapters
+          self.overlays.papi
           gem5.overlays.default
         ];
       });
@@ -46,6 +47,7 @@
         inherit system;
         overlays = [
           self.overlays.default
+          self.overlays.papi
           gem5.overlays.default
         ];
         crossOverlays = [
@@ -63,6 +65,7 @@
         inherit system;
         overlays = [
           self.overlays.default
+          self.overlays.papi
           gem5.overlays.default
         ];
         crossOverlays = [
@@ -92,6 +95,17 @@
         inherit nixpkgs;
         pkgs = final;
       };
+    };
+
+    overlays.papi = final: prev: {
+      papi = prev.papi.overrideAttrs (oldAttrs: {
+        src = final.fetchFromBitbucket {
+          owner = "icl";
+          repo = "papi";
+          rev = "b24aaaf03b6d052587db5096fdc86b45cc57c9bf";
+          hash = "sha256-TR7JNXy99vqlbrhfnaUDHO1DLhbvKyB9mgQGrYYtW/k=";
+        };
+      });
     };
 
     packages = forAllSystems (system: let
