@@ -34,7 +34,7 @@
     nixpkgsFor = forAllSystems (system:
       import nixpkgs {
         inherit system;
-        
+
         overlays = [
           self.overlays.default
           self.overlays.rivosAdapters
@@ -78,7 +78,6 @@
           system = "x86_64-linux";
         };
       });
-
   in {
     overlays.default = final: prev: let
       postgresql_14 = (import ./rivos/nix final self).postgresql_14.override {
@@ -86,7 +85,7 @@
       };
     in rec {
       inherit postgresql_14;
-      postgresql = postgresql_14.override { this = postgresql; };
+      postgresql = postgresql_14.override {this = postgresql;};
       postgresqlPackages = final.recurseIntoAttrs postgresql.pkgs;
       postgresql14Packages = postgresqlPackages;
     };
@@ -106,16 +105,19 @@
           rev = "b24aaaf03b6d052587db5096fdc86b45cc57c9bf";
           hash = "sha256-TR7JNXy99vqlbrhfnaUDHO1DLhbvKyB9mgQGrYYtW/k=";
         };
+        version = "6.0.0.1-git";
       });
     };
 
     packages = forAllSystems (system: let
+      papi = (nixpkgsFor.${system}).papi;
       postgresql = (nixpkgsFor.${system}).postgresql;
       postgresql-riscv64 = (riscv64PkgsFor.${system}).postgresql;
       postgresql-x86_64 = (x86PkgsFor.${system}).postgresql;
-      postgresql-riscv64-m5ops = postgresql-riscv64.override { enableM5ops = true; };
+      postgresql-riscv64-m5ops = postgresql-riscv64.override {enableM5ops = true;};
     in {
       inherit postgresql postgresql-riscv64 postgresql-riscv64-m5ops postgresql-x86_64;
+      inherit papi;
       default = postgresql;
     });
   };
