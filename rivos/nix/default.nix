@@ -2,7 +2,7 @@ let
 
   generic =
       # dependencies
-      { stdenv, lib, fetchurl, makeBinaryWrapper, flex, perl, bison, libxslt
+      { stdenv, lib, fetchurl, makeWrapper, flex, perl, bison, libxslt
       , glibc, zlib, readline, openssl, icu, lz4, systemd, libossp_uuid
       , pkg-config, libxml2, tzdata, libkrb5, glibcLocales, papi
 
@@ -57,7 +57,7 @@ let
       ++ lib.optionals (enableM5ops) [ m5ops ]
       ++ lib.optionals (enablePapi) [ papi ];
 
-    nativeBuildInputs = [ bison flex libxslt makeBinaryWrapper perl ] ++ lib.optionals icuEnabled [ pkg-config ];
+    nativeBuildInputs = [ bison flex libxslt makeWrapper perl ] ++ lib.optionals icuEnabled [ pkg-config ];
 
     enableParallelBuilding = !stdenv.isDarwin;
 
@@ -168,7 +168,7 @@ let
       in import ./packages.nix newSelf newSuper;
 
       withPackages = postgresqlWithPackages {
-                       inherit makeBinaryWrapper buildEnv;
+                       inherit makeWrapper buildEnv;
                        postgresql = this;
                      }
                      this.pkgs;
@@ -187,14 +187,14 @@ let
     };
   };
 
-  postgresqlWithPackages = { postgresql, makeBinaryWrapper, buildEnv }: pkgs: f: buildEnv {
+  postgresqlWithPackages = { postgresql, makeWrapper, buildEnv }: pkgs: f: buildEnv {
     name = "postgresql-and-plugins-${postgresql.version}";
     paths = f pkgs ++ [
         postgresql
         postgresql.lib
         postgresql.man   # in case user installs this into environment
     ];
-    nativeBuildInputs = [ makeBinaryWrapper ];
+    nativeBuildInputs = [ makeWrapper ];
 
 
     # We include /bin to ensure the $out/bin directory is created, which is
