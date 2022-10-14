@@ -35,10 +35,31 @@
         "type": "indirect"
       }
     },
+    "papi": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1665702198,
+        "narHash": "sha256-XVg6fKEws3FYvXXx4n3rb+iBInfkvZ9CjSzkEytfIow=",
+        "owner": "picostove",
+        "repo": "papi",
+        "rev": "cedd416240b2f92e5bd2b9d75a07dea1029f4256",
+        "type": "github"
+      },
+      "original": {
+        "owner": "picostove",
+        "repo": "papi",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "gem5": "gem5",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "papi": "papi"
       }
     }
   },

@@ -10,10 +10,14 @@
   inputs.gem5.url = "github:picostove/gem5";
   inputs.gem5.inputs.nixpkgs.follows = "nixpkgs";
 
+  inputs.papi.url = "github:picostove/papi";
+  inputs.papi.inputs.nixpkgs.follows = "nixpkgs";
+
   outputs = {
     self,
     nixpkgs,
     gem5,
+    papi,
   }: let
     # to work with older version of flakes
     lastModifiedDate = self.lastModifiedDate or self.lastModified or "19700101";
@@ -38,8 +42,8 @@
         overlays = [
           self.overlays.default
           self.overlays.rivosAdapters
-          self.overlays.papi
           gem5.overlays.default
+          papi.overlays.default
         ];
       });
 
@@ -48,8 +52,8 @@
         inherit system;
         overlays = [
           self.overlays.default
-          self.overlays.papi
           gem5.overlays.default
+          papi.overlays.default
         ];
         crossOverlays = [
           self.overlays.rivosAdapters
@@ -66,8 +70,8 @@
         inherit system;
         overlays = [
           self.overlays.default
-          self.overlays.papi
           gem5.overlays.default
+          papi.overlays.default
         ];
         crossOverlays = [
           self.overlays.rivosAdapters
@@ -95,18 +99,6 @@
         inherit nixpkgs;
         pkgs = final;
       };
-    };
-
-    overlays.papi = final: prev: {
-      papi = prev.papi.overrideAttrs (oldAttrs: {
-        src = final.fetchFromBitbucket {
-          owner = "icl";
-          repo = "papi";
-          rev = "b24aaaf03b6d052587db5096fdc86b45cc57c9bf";
-          hash = "sha256-TR7JNXy99vqlbrhfnaUDHO1DLhbvKyB9mgQGrYYtW/k=";
-        };
-        version = "6.0.0.1-git";
-      });
     };
 
     packages = forAllSystems (system: let
