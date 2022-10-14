@@ -21,7 +21,7 @@ let
       nixosTests, thisAttr,
       m5ops ? null,
       enableM5ops ? false,
-      enablePapi ? true,
+      enablePapi ? stdenv.hostPlatform.isx86_64,
     }:
   assert enableM5ops -> m5ops != null;
   let
