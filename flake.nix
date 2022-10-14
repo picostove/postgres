@@ -42,6 +42,7 @@
         overlays = [
           self.overlays.default
           self.overlays.rivosAdapters
+          self.overlays.usonly
           gem5.overlays.default
           papi.overlays.default
         ];
@@ -57,6 +58,7 @@
         ];
         crossOverlays = [
           self.overlays.rivosAdapters
+          self.overlays.usonly
         ];
         crossSystem = {
           config = "riscv64-unknown-linux-gnu";
@@ -75,6 +77,7 @@
         ];
         crossOverlays = [
           self.overlays.rivosAdapters
+          self.overlays.usonly
         ];
         crossSystem = {
           config = "x86_64-unknown-linux-gnu";
@@ -99,6 +102,9 @@
         inherit nixpkgs;
         pkgs = final;
       };
+    };
+    overlays.usonly = final: prev: {
+      glibcLocales = prev.glibcLocales.override { allLocales = false; };
     };
 
     packages = forAllSystems (system: let
