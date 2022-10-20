@@ -1,5 +1,5 @@
 diff --git a/src/backend/tcop/postgres.c b/src/backend/tcop/postgres.c
-index 2278d8569e..232b1733c9 100644
+index 2278d8569e..a590514415 100644
 --- a/src/backend/tcop/postgres.c
 +++ b/src/backend/tcop/postgres.c
 @@ -24,6 +24,9 @@
@@ -12,15 +12,26 @@ index 2278d8569e..232b1733c9 100644
  #ifdef HAVE_SYS_SELECT_H
  #include <sys/select.h>
  #endif
-@@ -961,6 +964,7 @@ exec_simple_query(const char *query_string)
+@@ -961,8 +964,18 @@ exec_simple_query(const char *query_string)
  	bool		save_log_statement_stats = log_statement_stats;
  	bool		was_logged = false;
  	bool		use_implicit_block;
-+	bool		m5_roi = (strstr(query_string, "select") || strstr(query_string, "SELECT"));
++	static int      m5_roi_count = 0;
++	bool		m5_roi = false;
  	char		msec_str[32];
  
++        // First iteration is a warm-up, so we don't instrument yet.
++	if (strstr(query_string, "select") || strstr(query_string, "SELECT")) {
++		if (m5_roi_count == 1) {
++			m5_roi = true;
++		}
++		m5_roi_count++;
++	}
++
  	/*
-@@ -971,6 +975,10 @@ exec_simple_query(const char *query_string)
+ 	 * Report query to various monitoring facilities.
+ 	 */
+@@ -971,6 +984,10 @@ exec_simple_query(const char *query_string)
  	pgstat_report_activity(STATE_RUNNING, query_string);
  
  	TRACE_POSTGRESQL_QUERY_START(query_string);
@@ -31,7 +42,7 @@ index 2278d8569e..232b1733c9 100644
  
  	/*
  	 * We use save_log_statement_stats so ShowUsage doesn't report incorrect
-@@ -1316,6 +1324,10 @@ exec_simple_query(const char *query_string)
+@@ -1316,6 +1333,10 @@ exec_simple_query(const char *query_string)
  	if (save_log_statement_stats)
  		ShowUsage("QUERY STATISTICS");
  
