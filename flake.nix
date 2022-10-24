@@ -81,7 +81,7 @@
         ];
         crossSystem = {
           config = "x86_64-unknown-linux-gnu";
-          gcc.tune = "icelake";
+          gcc.tune = "icelake-server";
           system = "x86_64-linux";
         };
       });
