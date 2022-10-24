@@ -1,5 +1,9 @@
-{ lib, stdenv, fetchFromGitHub, postgresql }:
-
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  postgresql,
+}:
 stdenv.mkDerivation rec {
   pname = "plpgsql_check";
   version = "2.1.9";
@@ -11,7 +15,7 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-O24iXHNIjtkGs1GfZbEBlIc1bGTbKICdhz8Q/gqS33s=";
   };
 
-  buildInputs = [ postgresql ];
+  buildInputs = [postgresql];
 
   installPhase = ''
     install -D -t $out/lib *.so
@@ -24,6 +28,6 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/okbob/plpgsql_check";
     platforms = postgresql.meta.platforms;
     license = licenses.mit;
-    maintainers = [ maintainers.marsam ];
+    maintainers = [maintainers.marsam];
   };
 }

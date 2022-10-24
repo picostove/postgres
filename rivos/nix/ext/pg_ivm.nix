@@ -1,5 +1,9 @@
-{ lib, stdenv, fetchFromGitHub, postgresql }:
-
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  postgresql,
+}:
 stdenv.mkDerivation rec {
   pname = "pg_ivm";
   version = "1.2";
@@ -11,7 +15,7 @@ stdenv.mkDerivation rec {
     hash = "sha256-q/iAMrT9npmtIKFKi/vSeYGvFSE+SgsKTP08YfBOpik=";
   };
 
-  buildInputs = [ postgresql ];
+  buildInputs = [postgresql];
 
   installPhase = ''
     install -D -t $out/lib *.so
@@ -22,7 +26,7 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     description = "Materialized views with IVM (Incremental View Maintenance) for PostgreSQL";
     homepage = "https://github.com/sraoss/pg_ivm";
-    maintainers = with maintainers; [ ivan ];
+    maintainers = with maintainers; [ivan];
     platforms = postgresql.meta.platforms;
     license = licenses.postgresql;
     broken = versionOlder postgresql.version "13";

@@ -104,7 +104,7 @@
       };
     };
     overlays.usonly = final: prev: {
-      glibcLocales = prev.glibcLocales.override { allLocales = false; };
+      glibcLocales = prev.glibcLocales.override {allLocales = false;};
     };
 
     packages = forAllSystems (system: let
@@ -112,11 +112,14 @@
       postgresql = (nixpkgsFor.${system}).postgresql;
       postgresql-riscv64 = (riscv64PkgsFor.${system}).postgresql;
       postgresql-x86_64 = (x86PkgsFor.${system}).postgresql;
+      postgresql-x86_64-m5ops = postgresql-x86_64.override {enableM5ops = true;};
       postgresql-riscv64-m5ops = postgresql-riscv64.override {enableM5ops = true;};
     in {
-      inherit postgresql postgresql-riscv64 postgresql-riscv64-m5ops postgresql-x86_64;
+      inherit postgresql postgresql-riscv64 postgresql-x86_64;
+      inherit postgresql-riscv64-m5ops postgresql-x86_64-m5ops;
       inherit papi;
       default = postgresql;
     });
+    formatter = forAllSystems (system: (nixpkgsFor.${system}).alejandra);
   };
 }

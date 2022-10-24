@@ -1,5 +1,12 @@
-{ lib, stdenv, fetchurl, pkg-config, postgresql, msgpack, groonga }:
-
+{
+  lib,
+  stdenv,
+  fetchurl,
+  pkg-config,
+  postgresql,
+  msgpack,
+  groonga,
+}:
 stdenv.mkDerivation rec {
   pname = "pgroonga";
   version = "2.3.8";
@@ -9,10 +16,10 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-/xlnwnUMW7JuUcSnZUV4nqCFcrfGDvXToz7IJykHCGI=";
   };
 
-  nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ postgresql msgpack groonga ];
+  nativeBuildInputs = [pkg-config];
+  buildInputs = [postgresql msgpack groonga];
 
-  makeFlags = [ "HAVE_MSGPACK=1" ];
+  makeFlags = ["HAVE_MSGPACK=1"];
 
   installPhase = ''
     install -D pgroonga.so -t $out/lib/
@@ -31,6 +38,6 @@ stdenv.mkDerivation rec {
     homepage = "https://pgroonga.github.io/";
     license = licenses.postgresql;
     platforms = postgresql.meta.platforms;
-    maintainers = with maintainers; [ DerTim1 ];
+    maintainers = with maintainers; [DerTim1];
   };
 }

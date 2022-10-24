@@ -1,5 +1,13 @@
-{ lib, stdenv, fetchFromGitHub, postgresql, openssl, zlib, readline, libkrb5 }:
-
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  postgresql,
+  openssl,
+  zlib,
+  readline,
+  libkrb5,
+}:
 stdenv.mkDerivation rec {
   pname = "pg_auto_failover";
   version = "1.6.4";
@@ -11,7 +19,7 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-MzMKVS86ymfRwZqTzJsdophRrIIPDp50Wpt7QkGA6Nc=";
   };
 
-  buildInputs = [ postgresql openssl zlib readline libkrb5 ];
+  buildInputs = [postgresql openssl zlib readline libkrb5];
 
   installPhase = ''
     install -D -t $out/bin src/bin/pg_autoctl/pg_autoctl
@@ -24,7 +32,7 @@ stdenv.mkDerivation rec {
     description = "PostgreSQL extension and service for automated failover and high-availability";
     homepage = "https://github.com/citusdata/pg_auto_failover";
     changelog = "https://github.com/citusdata/pg_auto_failover/raw/v${version}/CHANGELOG.md";
-    maintainers = [ maintainers.marsam ];
+    maintainers = [maintainers.marsam];
     platforms = postgresql.meta.platforms;
     license = licenses.postgresql;
     broken = versionOlder postgresql.version "10";

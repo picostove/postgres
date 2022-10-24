@@ -1,17 +1,23 @@
-{ lib, stdenv, fetchFromGitHub, cmake, postgresql, openssl, libkrb5 }:
-
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  postgresql,
+  openssl,
+  libkrb5,
+}:
 # # To enable on NixOS:
 # config.services.postgresql = {
 #   extraPlugins = [ pkgs.timescaledb ];
 #   extraConfig = "shared_preload_libraries = 'timescaledb'";
 # }
-
 stdenv.mkDerivation rec {
   pname = "timescaledb";
   version = "2.8.0";
 
-  nativeBuildInputs = [ cmake ];
-  buildInputs = [ postgresql openssl libkrb5 ];
+  nativeBuildInputs = [cmake];
+  buildInputs = [postgresql openssl libkrb5];
 
   src = fetchFromGitHub {
     owner = "timescale";
@@ -20,8 +26,9 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-xJidQ25JPIFY0KMV9EVrp4+qbU+QWDLaCSNHKOQq+dI=";
   };
 
-  cmakeFlags = [ "-DSEND_TELEMETRY_DEFAULT=OFF" "-DREGRESS_CHECKS=OFF" "-DTAP_CHECKS=OFF" ]
-    ++ lib.optionals stdenv.isDarwin [ "-DLINTER=OFF" ];
+  cmakeFlags =
+    ["-DSEND_TELEMETRY_DEFAULT=OFF" "-DREGRESS_CHECKS=OFF" "-DTAP_CHECKS=OFF"]
+    ++ lib.optionals stdenv.isDarwin ["-DLINTER=OFF"];
 
   # Fix the install phase which tries to install into the pgsql extension dir,
   # and cannot be manually overridden. This is rather fragile but works OK.
@@ -41,7 +48,7 @@ stdenv.mkDerivation rec {
     description = "Scales PostgreSQL for time-series data via automatic partitioning across time and space";
     homepage = "https://www.timescale.com/";
     changelog = "https://github.com/timescale/timescaledb/raw/${version}/CHANGELOG.md";
-    maintainers = with maintainers; [ marsam ];
+    maintainers = with maintainers; [marsam];
     platforms = postgresql.meta.platforms;
     license = licenses.asl20;
     broken = versionOlder postgresql.version "12";

@@ -1,5 +1,9 @@
-{ lib, stdenv, fetchFromGitHub, postgresql }:
-
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  postgresql,
+}:
 stdenv.mkDerivation rec {
   pname = "rum";
   version = "1.3.12";
@@ -11,9 +15,9 @@ stdenv.mkDerivation rec {
     hash = "sha256-dI3R1L3dXvEt6Ell7HuGc6XqK8YDf0RmN+JLDtv+uYI=";
   };
 
-  buildInputs = [ postgresql ];
+  buildInputs = [postgresql];
 
-  makeFlags = [ "USE_PGXS=1" ];
+  makeFlags = ["USE_PGXS=1"];
 
   installPhase = ''
     install -D -t $out/lib *.so
@@ -26,6 +30,6 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/postgrespro/rum";
     license = licenses.postgresql;
     platforms = postgresql.meta.platforms;
-    maintainers = with maintainers; [ DeeUnderscore ];
+    maintainers = with maintainers; [DeeUnderscore];
   };
 }
