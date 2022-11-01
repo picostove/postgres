@@ -104,7 +104,10 @@
       };
     };
     overlays.usonly = final: prev: {
-      glibcLocales = prev.glibcLocales.override {allLocales = false;};
+      glibcLocales = prev.glibcLocales.override {
+        allLocales = false;
+        locales = [ "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8" ];
+      };
     };
 
     packages = forAllSystems (system: let
