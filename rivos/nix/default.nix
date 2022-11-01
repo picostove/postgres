@@ -188,7 +188,7 @@ let
                           --set LOCALE_ARCHIVE ${glibcLocales}/lib/locale/locale-archive
             '';
 
-          doCheck = !stdenv.isDarwin;
+          doCheck = !stdenv.isDarwin && !enableM5ops;
           # autodetection doesn't seem to able to find this, but it's there.
           checkTarget = "check";
 
