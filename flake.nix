@@ -55,11 +55,11 @@
           self.overlays.default
           gem5.overlays.default
           papi.overlays.default
+          self.overlays.gcc12
         ];
         crossOverlays = [
           self.overlays.rivosAdapters
           self.overlays.usonly
-          self.overlays.gcc12
         ];
         crossSystem = {
           config = "riscv64-unknown-linux-gnu";
@@ -112,7 +112,8 @@
     };
 
     overlays.gcc12 = final: prev: {
-      stdenv = prev.gcc12Stdenv;
+      gcc = prev.gcc12;
+      gccFun = final.callPackage (nixpkgs + "/pkgs/development/compilers/gcc/12");
     };
 
     packages = forAllSystems (system: let
