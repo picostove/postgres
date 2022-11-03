@@ -59,6 +59,7 @@
         crossOverlays = [
           self.overlays.rivosAdapters
           self.overlays.usonly
+          self.overlays.gcc12
         ];
         crossSystem = {
           config = "riscv64-unknown-linux-gnu";
@@ -108,6 +109,10 @@
         allLocales = false;
         locales = ["en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8"];
       };
+    };
+
+    overlays.gcc12 = final: prev: {
+      stdenv = prev.gcc12Stdenv;
     };
 
     packages = forAllSystems (system: let
