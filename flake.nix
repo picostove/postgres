@@ -55,6 +55,7 @@
           self.overlays.default
           gem5.overlays.default
           papi.overlays.default
+          self.overlays.gcc12
         ];
         crossOverlays = [
           self.overlays.rivosAdapters
@@ -108,6 +109,11 @@
         allLocales = false;
         locales = ["en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8"];
       };
+    };
+
+    overlays.gcc12 = final: prev: {
+      gcc = prev.gcc12;
+      gccFun = final.callPackage (nixpkgs + "/pkgs/development/compilers/gcc/12");
     };
 
     packages = forAllSystems (system: let
