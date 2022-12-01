@@ -48,6 +48,22 @@
         ];
       });
 
+    novecPkgsFor = forAllSystems (system:
+      import nixpkgs {
+        inherit system;
+
+        overlays = [
+          self.overlays.default
+          self.overlays.rivosAdapters
+          self.overlays.usonly
+          gem5.overlays.default
+          papi.overlays.default
+          (final: prev: {
+            stdenv = prev.stdenvAdapters.withCFlags ["-fno-tree-vectorize"] prev.stdenv;
+          })
+        ];
+      });
+
     riscv64PkgsFor = forAllSystems (system:
       import nixpkgs {
         inherit system;
@@ -119,13 +135,11 @@
     packages = forAllSystems (system: let
       papi = (nixpkgsFor.${system}).papi;
       postgresql = (nixpkgsFor.${system}).postgresql;
-      postgresql-riscv64 = (riscv64PkgsFor.${system}).postgresql;
-      postgresql-x86_64 = (x86PkgsFor.${system}).postgresql;
-      postgresql-x86_64-m5ops = postgresql-x86_64.override {enableM5ops = true;};
-      postgresql-riscv64-m5ops = postgresql-riscv64.override {enableM5ops = true;};
+      postgresql-papi = postgresql.override {enablePapi = true;};
+      postgresql-novec = (novecPkgsFor.${system}).postgresql;
+      postgresql-novec-papi = postgresql-novec.override {enablePapi = true;};
     in {
-      inherit postgresql postgresql-riscv64 postgresql-x86_64;
-      inherit postgresql-riscv64-m5ops postgresql-x86_64-m5ops;
+      inherit postgresql postgresql-novec postgresql-papi postgresql-novec-papi;
       inherit papi;
       default = postgresql;
     });

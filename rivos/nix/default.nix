@@ -41,7 +41,7 @@ let
       thisAttr,
       m5ops ? null,
       enableM5ops ? false,
-      enablePapi ? stdenv.hostPlatform.isx86_64,
+      enablePapi ? false,
     }:
       assert enableM5ops -> m5ops != null; let
         atLeast = lib.versionAtLeast version;
