@@ -138,8 +138,11 @@
       postgresql-papi = postgresql.override {enablePapi = true;};
       postgresql-novec = (novecPkgsFor.${system}).postgresql;
       postgresql-novec-papi = postgresql-novec.override {enablePapi = true;};
+      postgresql-with-parquet = postgresql.withPackages (postgresPkgs: [postgresPkgs.parquet_fdw]);
+      postgresql-with-parquet-papi = postgresql-papi.withPackages (postgresPkgs: [postgresPkgs.parquet_fdw]);
     in {
       inherit postgresql postgresql-novec postgresql-papi postgresql-novec-papi;
+      inherit postgresql-with-parquet postgresql-with-parquet-papi;
       inherit papi;
       default = postgresql;
     });

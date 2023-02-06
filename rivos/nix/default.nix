@@ -253,7 +253,6 @@ let
         ++ [
           postgresql
           postgresql.lib
-          postgresql.man # in case user installs this into environment
         ];
       nativeBuildInputs = [makeWrapper];
 

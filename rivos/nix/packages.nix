@@ -70,4 +70,6 @@ self: super: {
   rum = super.callPackage ./ext/rum.nix {};
 
   wal2json = super.callPackage ./ext/wal2json.nix {};
+
+  parquet_fdw = super.callPackage ./ext/parquet_fdw.nix {};
 }
