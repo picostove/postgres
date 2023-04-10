@@ -5,6 +5,11 @@
 {
   description = "postgresql";
 
+  nixConfig = {
+    extra-substituters = ["https://rivosinc.cachix.org"];
+    extra-trusted-public-keys = ["rivosinc.cachix.org-1:GukvLG5z5jPxRuDu9xLyul0vue1gD1wSChJjljiwpf0="];
+  };
+
   inputs = {
     nixpkgs.url = "github:rivosinc/nixpkgs/rivos/nixos-22.11?allRefs=1";
     flake-parts.url = "github:hercules-ci/flake-parts";
