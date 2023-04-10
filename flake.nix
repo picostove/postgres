@@ -5,147 +5,53 @@
 {
   description = "postgresql";
 
-  inputs.nixpkgs.url = "nixpkgs/nixos-unstable";
+  inputs = {
+    nixpkgs.url = "github:rivosinc/nixpkgs/rivos/nixos-22.11?allRefs=1";
+    flake-parts.url = "github:hercules-ci/flake-parts";
 
-  inputs.gem5.url = "github:picostove/gem5";
-  inputs.gem5.inputs.nixpkgs.follows = "nixpkgs";
+    gem5.url = "github:picostove/gem5";
+    gem5.inputs.nixpkgs.follows = "nixpkgs";
 
-  inputs.papi.url = "github:picostove/papi";
-  inputs.papi.inputs.nixpkgs.follows = "nixpkgs";
+    papi.url = "github:picostove/papi";
+    papi.inputs.nixpkgs.follows = "nixpkgs";
 
-  outputs = {
-    self,
-    nixpkgs,
-    gem5,
-    papi,
-  }: let
-    # to work with older version of flakes
-    lastModifiedDate = self.lastModifiedDate or self.lastModified or "19700101";
-
-    # Generate a user-friendly version number.
-    version = builtins.substring 0 8 lastModifiedDate;
-
-    # System types to support.
-    supportedSystems = [
-      "riscv64-linux"
-      "x86_64-linux"
-    ];
-
-    # Helper function to generate an attrset '{ x86_64-linux = f "x86_64-linux"; ... }'.
-    forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-
-    # Nixpkgs instantiated for supported system types.
-    nixpkgsFor = forAllSystems (system:
-      import nixpkgs {
-        inherit system;
-
-        overlays = [
-          self.overlays.default
-          self.overlays.rivosAdapters
-          self.overlays.usonly
-          gem5.overlays.default
-          papi.overlays.default
-        ];
-      });
-
-    novecPkgsFor = forAllSystems (system:
-      import nixpkgs {
-        inherit system;
-
-        overlays = [
-          self.overlays.default
-          self.overlays.rivosAdapters
-          self.overlays.usonly
-          gem5.overlays.default
-          papi.overlays.default
-          (final: prev: {
-            stdenv = prev.stdenvAdapters.withCFlags ["-fno-tree-vectorize"] prev.stdenv;
-          })
-        ];
-      });
-
-    riscv64PkgsFor = forAllSystems (system:
-      import nixpkgs {
-        inherit system;
-        overlays = [
-          self.overlays.default
-          gem5.overlays.default
-          papi.overlays.default
-          self.overlays.gcc12
-        ];
-        crossOverlays = [
-          self.overlays.rivosAdapters
-          self.overlays.usonly
-        ];
-        crossSystem = {
-          config = "riscv64-unknown-linux-gnu";
-          gcc.arch = "rv64gc_zba_zbb_zbc_zbs";
-          system = "riscv64-linux";
-        };
-      });
-
-    x86PkgsFor = forAllSystems (system:
-      import nixpkgs {
-        inherit system;
-        overlays = [
-          self.overlays.default
-          gem5.overlays.default
-          papi.overlays.default
-        ];
-        crossOverlays = [
-          self.overlays.rivosAdapters
-          self.overlays.usonly
-        ];
-        crossSystem = {
-          config = "x86_64-unknown-linux-gnu";
-          gcc.tune = "icelake-server";
-          system = "x86_64-linux";
-        };
-      });
-  in {
-    overlays.default = final: prev: let
-      postgresql_14 = (import ./rivos/nix final self).postgresql_14.override {
-        #stdenv = rivosAdapters.modifyStdenv final.stdenv [ rivosAdapters.embedDebugInfo ];
-      };
-    in rec {
-      inherit postgresql_14;
-      postgresql = postgresql_14.override {this = postgresql;};
-      postgresqlPackages = final.recurseIntoAttrs postgresql.pkgs;
-      postgresql14Packages = postgresqlPackages;
-    };
-    overlays.rivosAdapters = final: prev: {
-      rivosAdapters = import ./rivos/nix/stdenv-adapters.nix {
-        inherit (final) lib config;
-        inherit nixpkgs;
-        pkgs = final;
-      };
-    };
-    overlays.usonly = final: prev: {
-      glibcLocales = prev.glibcLocales.override {
-        allLocales = false;
-        locales = ["en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8"];
-      };
-    };
-
-    overlays.gcc12 = final: prev: {
-      gcc = prev.gcc12;
-      gccFun = final.callPackage (nixpkgs + "/pkgs/development/compilers/gcc/12");
-    };
-
-    packages = forAllSystems (system: let
-      papi = (nixpkgsFor.${system}).papi;
-      postgresql = (nixpkgsFor.${system}).postgresql;
-      postgresql-papi = postgresql.override {enablePapi = true;};
-      postgresql-novec = (novecPkgsFor.${system}).postgresql;
-      postgresql-novec-papi = postgresql-novec.override {enablePapi = true;};
-      postgresql-with-parquet = postgresql.withPackages (postgresPkgs: [postgresPkgs.parquet_fdw]);
-      postgresql-with-parquet-papi = postgresql-papi.withPackages (postgresPkgs: [postgresPkgs.parquet_fdw]);
-    in {
-      inherit postgresql postgresql-novec postgresql-papi postgresql-novec-papi;
-      inherit postgresql-with-parquet postgresql-with-parquet-papi;
-      inherit papi;
-      default = postgresql;
-    });
-    formatter = forAllSystems (system: (nixpkgsFor.${system}).alejandra);
+    crosspkgs.url = "github:rivosinc/crosspkgs";
+    crosspkgs.inputs.nixpkgs.follows = "nixpkgs";
   };
+
+  outputs = inputs @ {
+    crosspkgs,
+    flake-parts,
+    ...
+  }:
+    flake-parts.lib.mkFlake {inherit inputs;}
+    {
+      imports = [
+        crosspkgs.flakeModules.default
+        flake-parts.flakeModules.easyOverlay
+      ];
+      perSystem = {
+        pkgs,
+        inputs',
+        lib,
+        ...
+      }: rec {
+        packages = rec {
+          postgresql_14 = (import ./rivos/nix pkgs inputs.self).postgresql_14.override {
+            enableSystemd = false;
+            glibcLocales = pkgs.glibcLocales.override {
+              allLocales = false;
+              locales = ["en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8"];
+            };
+            
+            libxml2 = pkgs.libxml2.override {
+              pythonSupport = false;
+            };
+          };
+          postgresql = postgresql_14;
+          default = postgresql;
+        };
+        overlayAttrs = packages;
+      };
+    };
 }
