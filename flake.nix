@@ -54,6 +54,8 @@
             };
           };
           postgresql = postgresql_14;
+          postgresql-papi = postgresql.override { papi = inputs'.papi.packages.papi; enablePapi = true; };
+          postgresql-m5ops = postgresql.override { m5ops = inputs'.gem5.packages.m5ops; enableM5ops = true; };
           default = postgresql;
         };
         overlayAttrs = packages;
