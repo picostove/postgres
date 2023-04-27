@@ -35,11 +35,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1681119042,
-        "narHash": "sha256-wx2hdGu6Cb5r/AFitjP2hMYKA8SnTjRHfao8swB6SNs=",
+        "lastModified": 1682634732,
+        "narHash": "sha256-iPK7sL4tZHdNgX+w/SLuFZsHDFaLc1XWK5BevVBx8Ig=",
         "owner": "rivosinc",
         "repo": "crosspkgs",
-        "rev": "9ef42faa483f50fd3608b8f2f3ee491150be2931",
+        "rev": "fbe7fd787105c55e44da9871e5433077787b89d5",
         "type": "github"
       },
       "original": {
@@ -157,11 +157,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1681097988,
-        "narHash": "sha256-Er9LrDKvRZhotzBB55Px8bX63upiCIL2DJJJOabtLuY=",
+        "lastModified": 1681169732,
+        "narHash": "sha256-913U+hPvkI9mmO7q1/IT8BVZ4C9p7945sv56x/usdeY=",
         "owner": "rivosinc",
         "repo": "llvm-project",
-        "rev": "626a2d56c94d579a2809c2fa7f0e19fd24d71af0",
+        "rev": "9b6073724013ee48b1758b6132b5b50e5ead2a62",
         "type": "github"
       },
       "original": {
@@ -173,11 +173,11 @@
     },
     "nix-filter": {
       "locked": {
-        "lastModified": 1676294984,
-        "narHash": "sha256-hdLUa/3RH1VJ+gMUysQE0JGM4F2Q/tIIFbtoxAOurJQ=",
+        "lastModified": 1678109515,
+        "narHash": "sha256-C2X+qC80K2C1TOYZT8nabgo05Dw2HST/pSn6s+n6BO8=",
         "owner": "numtide",
         "repo": "nix-filter",
-        "rev": "fc282c5478e4141842f9644c239a41cfe9586732",
+        "rev": "aa9ff6ce4a7f19af6415fb3721eaa513ea6c763c",
         "type": "github"
       },
       "original": {
