@@ -113,11 +113,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1665360530,
-        "narHash": "sha256-LbU/S0R++4MmvZN1+1WFhX05aJQtJ2XCtQRTLYeSBL4=",
+        "lastModified": 1682623743,
+        "narHash": "sha256-I5aL/JLX4XT6iv9yPIgFkTuUatYahOTm5bfyEqQMQ8U=",
         "owner": "picostove",
         "repo": "gem5",
-        "rev": "91c2fb0f5a0a0cb8ae1b14cffe84722ece9b9c37",
+        "rev": "1d912537e2af9975081dd9dcafc096cac3df0b50",
         "type": "github"
       },
       "original": {
