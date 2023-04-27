@@ -1,0 +1,165 @@
+diff --git a/src/backend/tcop/postgres.c b/src/backend/tcop/postgres.c
+index 2278d8569e..f36b2eea91 100644
+--- a/src/backend/tcop/postgres.c
++++ b/src/backend/tcop/postgres.c
+@@ -1,3 +1,4 @@
++
+ /*-------------------------------------------------------------------------
+  *
+  * postgres.c
+@@ -81,6 +82,9 @@
+ #include "utils/timeout.h"
+ #include "utils/timestamp.h"
+ 
++#include "papi.h"
++#include "time.h"
++
+ /* ----------------
+  *		global variables
+  * ----------------
+@@ -104,6 +108,8 @@ int			PostAuthDelay = 0;
+ /* Time between checks that the client is still connected. */
+ int			client_connection_check_interval = 0;
+ 
++int eventset=PAPI_NULL;
++
+ /* ----------------
+  *		private typedefs etc
+  * ----------------
+@@ -961,6 +967,7 @@ exec_simple_query(const char *query_string)
+ 	bool		save_log_statement_stats = log_statement_stats;
+ 	bool		was_logged = false;
+ 	bool		use_implicit_block;
++	bool            m5_roi = (strstr(query_string, "select") || strstr(query_string, "SELECT"));
+ 	char		msec_str[32];
+ 
+ 	/*
+@@ -971,6 +978,21 @@ exec_simple_query(const char *query_string)
+ 	pgstat_report_activity(STATE_RUNNING, query_string);
+ 
+ 	TRACE_POSTGRESQL_QUERY_START(query_string);
++        clock_t start, end;
++        double cpu_time_used;
++    
++        if (m5_roi) {
++            //m5_work_begin(0, 0);
++            start = clock();
++            PAPI_reset(eventset);
++            ereport(LOG,(errmsg("starting PAPI trigger")));
++            int retval=PAPI_start(eventset);
++            if (retval!=PAPI_OK) {
++                ereport(LOG,(errmsg("Error starting PAPI events: %s\n",
++                                    PAPI_strerror(retval))));
++            }
++        }
++
+ 
+ 	/*
+ 	 * We use save_log_statement_stats so ShowUsage doesn't report incorrect
+@@ -1316,6 +1338,33 @@ exec_simple_query(const char *query_string)
+ 	if (save_log_statement_stats)
+ 		ShowUsage("QUERY STATISTICS");
+ 
++
++    if(m5_roi) {
++
++        double cpu_time_used;
++        end = clock();
++        cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
++        //printf("vvasisht: query processing took %f seconds to execute \n", cpu_time_used);
++        ereport(LOG,(errmsg("vvasisht: query processing took %f seconds to execute \n", cpu_time_used)));
++        
++        unsigned long long count[4];
++        ereport(LOG,errmsg("stopping PAPI trigger"));
++        int retval=PAPI_stop(eventset,&count);
++        if (retval!=PAPI_OK) {
++            ereport(LOG,errmsg("Error stopping:  %s\n",
++                           PAPI_strerror(retval)));
++        }
++        else {
++            
++            ereport(LOG,errmsg("Measured %lld instructions\n",count[0]));
++            ereport(LOG,errmsg("Measured %lld actual cycles\n",count[1]));
++            ereport(LOG,errmsg("Measured %lld reference cycles\n",count[2]));
++            ereport(LOG,errmsg("Measured %lld uops retired\n",count[3]));
++            //ereport(LOG,errmsg("Measured %lld kernel cycles\n",count[4]));
++        }
++    }
++
++
+ 	TRACE_POSTGRESQL_QUERY_DONE(query_string);
+ 
+ 	debug_query_string = NULL;
+@@ -4314,7 +4363,71 @@ PostgresMain(int argc, char *argv[],
+ 	/*
+ 	 * Non-error queries loop here.
+ 	 */
+-
++    int retval;
++    retval=PAPI_library_init(PAPI_VER_CURRENT);
++    if (retval!=PAPI_VER_CURRENT) {
++        ereport(LOG,errmsg("Error initializing PAPI! %s\n",
++                           PAPI_strerror(retval)));
++    }
++
++    retval=PAPI_create_eventset(&eventset);
++    if (retval!=PAPI_OK) {
++        ereport(LOG,errmsg("Error creating eventset! %s\n",
++                           PAPI_strerror(retval)));
++    }
++
++    /*
++    retval=PAPI_add_named_event(eventset,"PAPI_TOT_INS");
++    if (retval!=PAPI_OK) {
++        ereport(LOG,errmsg("Error adding PAPI_TOT_INS: %s\n",
++                           PAPI_strerror(retval)));
++    }
++
++    retval=PAPI_add_named_event(eventset,"PAPI_TOT_CYC");
++    if (retval!=PAPI_OK) {
++        ereport(LOG,errmsg("Error adding PAPI_TOT_CYC: %s\n",
++        }*/
++    
++    retval=PAPI_add_named_event(eventset,"instructions");
++    if (retval!=PAPI_OK) {
++        ereport(LOG,errmsg("Error adding instructions %s\n",
++                           PAPI_strerror(retval)));
++    }
++    
++    retval=PAPI_add_named_event(eventset,"cycles");
++    if (retval!=PAPI_OK) {
++        ereport(LOG,errmsg("Error adding cycles %s\n",
++                           PAPI_strerror(retval)));
++    }
++    
++    retval=PAPI_add_named_event(eventset,"ref-cycles");
++    if (retval!=PAPI_OK) {
++        ereport(LOG,errmsg("Error adding ref cycles %s\n",
++                           PAPI_strerror(retval)));
++    }
++
++    retval=PAPI_add_named_event(eventset,"UOPS_RETIRED");
++    if (retval!=PAPI_OK) {
++        ereport(LOG,errmsg("Error adding uops retired %s\n",
++                           PAPI_strerror(retval)));
++    }
++    /*
++        retval=PAPI_add_named_event(eventset,"UNHALTED_CORE_CYCLES:u=0");
++        if (retval!=PAPI_OK) {
++            ereport(LOG,errmsg("Error adding user cycles %s\n",
++                               PAPI_strerror(retval)));
++        }
++    
++        retval=PAPI_add_named_event(eventset,"UNHALTED_CORE_CYCLES:k=0");
++        if (retval!=PAPI_OK) {
++            ereport(LOG,errmsg("Error adding kernel cycles %s\n",
++                               PAPI_strerror(retval)));
++        }
++    
++    */    
++    
++    ereport(LOG,errmsg("PAPI armed"));
++ 
+ 	for (;;)
+ 	{
+ 		/*

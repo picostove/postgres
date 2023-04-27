@@ -138,7 +138,8 @@ let
               then ./patches/socketdir-in-run-13.patch
               else ./patches/socketdir-in-run.patch
             )
-            ++ lib.optional enableM5ops ./m5ops.patch;
+            ++ lib.optional enableM5ops ./m5ops.patch
+            ++ lib.optional enablePapi ./papi.patch;
 
           installTargets = ["install"];
 
