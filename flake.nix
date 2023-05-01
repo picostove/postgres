@@ -36,12 +36,15 @@
         flake-parts.flakeModules.easyOverlay
       ];
       perSystem = {
+        final,
         pkgs,
         inputs',
         lib,
         ...
       }: rec {
         packages = rec {
+          inherit (inputs.gem5.overlays.default final pkgs) m5ops;
+          inherit (inputs.papi.overlays.default final pkgs) papi;
           postgresql_14 = (import ./rivos/nix pkgs inputs.self).postgresql_14.override {
             enableSystemd = false;
             glibcLocales = pkgs.glibcLocales.override {
@@ -54,8 +57,8 @@
             };
           };
           postgresql = postgresql_14;
-          postgresql-papi = postgresql.override { papi = inputs'.papi.packages.papi; enablePapi = true; };
-          postgresql-m5ops = postgresql.override { m5ops = inputs'.gem5.packages.m5ops; enableM5ops = true; };
+          postgresql-papi = postgresql.override { enablePapi = true; };
+          postgresql-m5ops = postgresql.override { enableM5ops = true; };
           default = postgresql;
         };
         overlayAttrs = packages;
