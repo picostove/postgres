@@ -260,11 +260,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1682543663,
-        "narHash": "sha256-+FViG79h2KiSSbCN2C1vyWnzINP+UBsF5q2S8QQ3ZRw=",
+        "lastModified": 1684955852,
+        "narHash": "sha256-4pt8gxTpJnrKraIZ3M9RtgyiSV7YOKiQ6N/X4BLRVoY=",
         "owner": "picostove",
         "repo": "papi",
-        "rev": "7b9a2a27038b9e1b01570a2e37414e7f2741e0e2",
+        "rev": "1f8421805c68981798e2bc2f6836dfa3b20a4191",
         "type": "github"
       },
       "original": {
